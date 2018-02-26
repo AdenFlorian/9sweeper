@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-class Square extends React.Component<{index: number}, {on}> {
+class Square extends React.PureComponent<{index: number}, {on}> {
     state = {on: false}
 
     render() {
@@ -20,7 +20,7 @@ const Row = (props) =>
         {Array.from(Array(props.width)).map((x, index) => <Square key={index} index={index} />)}
     </tr>
 
-class Board extends React.Component<{size: number}, {}> {
+class Board extends React.PureComponent<{size: number}, {}> {
     render() {
         const {size} = this.props
 
@@ -28,16 +28,22 @@ class Board extends React.Component<{size: number}, {}> {
     }
 }
 
-export class App extends React.Component {
+const Debug = ({movableX, movableY, mouseX, mouseY, isMouseDown}) =>
+    <div
+        className="unselectable"
+    >
+        <p>movable ({movableX}, {movableY})</p>
+        <p>mouse ({mouseX}, {mouseY})</p>
+        <p>mouseDown ({isMouseDown.toString()})</p>
+    </div>
+
+
+export class App extends React.PureComponent {
     state = {
-        mouse: {
-            x: 0,
-            y: 0
-        },
-        movable: {
-            x: 100,
-            y: 100
-        },
+        mouseX: 0,
+        mouseY: 0,
+        movableX: 100,
+        movableY: 100,
         isMouseDown: false
     }
 
@@ -48,23 +54,21 @@ export class App extends React.Component {
     handleMouseMove = (event) => {
         if (this.state.isMouseDown) {
             this.setState({
-                movable: {
-                    x: this.state.movable.x + event.clientX - this.state.mouse.x,
-                    y: this.state.movable.y + event.clientY - this.state.mouse.y
-                }
+                movableX: this.state.movableX + event.clientX - this.state.mouseX,
+                movableY: this.state.movableY + event.clientY - this.state.mouseY
             })
         }
-        this.setState({mouse: {x: event.clientX, y: event.clientY}})
+        this.setState({mouseX: event.clientX, mouseY: event.clientY})
     }
 
     render() {
-        const {movable: {x, y}, mouse, isMouseDown} = this.state;
+        const {movableX, movableY, mouseX, mouseY, isMouseDown} = this.state;
 
         return (
             <div>
                 <p>Hello world?</p>
+                <Debug {...this.state} />
                 <div
-                    className="unselectable"
                     style={{height: '100%'}}
                     onMouseMove={this.handleMouseMove}
                 >
@@ -72,7 +76,7 @@ export class App extends React.Component {
                         onMouseDown={() => this.setState({isMouseDown: true})}
                         onMouseUp={() => this.setState({isMouseDown: false})}
                         id="movable"
-                        style={{left: x + 'px', top: y + 'px'}}
+                        style={{left: movableX + 'px', top: movableY + 'px'}}
                     >
                         <table>
                             <tbody>
@@ -80,9 +84,6 @@ export class App extends React.Component {
                             </tbody>
                         </table>
                     </div>
-                    <p>movable ({x}, {y})</p>
-                    <p>mouse ({mouse.x}, {mouse.y})</p>
-                    <p>mouseDown ({isMouseDown.toString()})</p>
                 </div>
             </div>
         )
