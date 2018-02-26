@@ -28,13 +28,13 @@ class Board extends React.PureComponent<{size: number}, {}> {
     }
 }
 
-const Debug = ({movableX, movableY, mouseX, mouseY, isMouseDown}) =>
+const Debug = ({movableX, movableY, mouseX, mouseY, isRightMouseDown}) =>
     <div
         className="unselectable"
     >
         <p>movable ({movableX}, {movableY})</p>
         <p>mouse ({mouseX}, {mouseY})</p>
-        <p>mouseDown ({isMouseDown.toString()})</p>
+        <p>mouseDown ({isRightMouseDown.toString()})</p>
     </div>
 
 
@@ -44,7 +44,7 @@ export class App extends React.PureComponent {
         mouseY: 0,
         movableX: 100,
         movableY: 100,
-        isMouseDown: false
+        isRightMouseDown: false
     }
 
     constructor(props) {
@@ -52,7 +52,7 @@ export class App extends React.PureComponent {
     }
 
     handleMouseMove = (event) => {
-        if (this.state.isMouseDown) {
+        if (this.state.isRightMouseDown) {
             this.setState({
                 movableX: this.state.movableX + event.clientX - this.state.mouseX,
                 movableY: this.state.movableY + event.clientY - this.state.mouseY
@@ -62,7 +62,7 @@ export class App extends React.PureComponent {
     }
 
     render() {
-        const {movableX, movableY, mouseX, mouseY, isMouseDown} = this.state;
+        const {movableX, movableY, mouseX, mouseY, isRightMouseDown} = this.state;
 
         return (
             <div>
@@ -73,10 +73,11 @@ export class App extends React.PureComponent {
                     onMouseMove={this.handleMouseMove}
                 >
                     <div
-                        onMouseDown={() => this.setState({isMouseDown: true})}
-                        onMouseUp={() => this.setState({isMouseDown: false})}
+                        onMouseDown={({button}) => button === 2 && this.setState({isRightMouseDown: true})}
+                        onMouseUp={({button}) => button === 2 && this.setState({isRightMouseDown: false})}
                         id="movable"
                         style={{left: movableX + 'px', top: movableY + 'px'}}
+                        onContextMenu={(event) => event.preventDefault()}
                     >
                         <table>
                             <tbody>
